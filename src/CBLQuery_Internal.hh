@@ -13,6 +13,7 @@
 #include "access_lock.hh"
 #include "fleece/Fleece.hh"
 #include "fleece/Mutable.hh"
+#include "fleece/Expert.hh"
 #include <optional>
 #include <unordered_map>
 
@@ -49,7 +50,7 @@ public:
     Dict parameters() const {
         if (!_parameters)
             return nullptr;
-        return Value::fromData(_parameters, kFLTrusted).asDict();
+        return ValueFromData(_parameters, kFLTrusted).asDict();
     }
 
     void setParameters(Dict parameters) {

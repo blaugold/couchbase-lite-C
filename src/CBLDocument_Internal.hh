@@ -23,6 +23,7 @@
 #include "access_lock.hh"
 #include "fleece/Fleece.hh"
 #include "fleece/Mutable.hh"
+#include "fleece/Expert.hh"
 #include <unordered_map>
 
 CBL_ASSUME_NONNULL_BEGIN
@@ -121,7 +122,7 @@ public:
                 storage = c4doc->getRevisionBody();
 
             if (storage)
-                _properties = Value::fromData(storage);
+                _properties = ValueFromData(storage);
             if (_mutable) {
                 if (_properties)
                     _properties = _properties.asDict().mutableCopy();

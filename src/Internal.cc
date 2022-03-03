@@ -20,6 +20,7 @@
 #include "CBLLog_Internal.hh"
 #include "c4Base.hh"
 #include "fleece/Fleece.h"
+#include "fleece/Expert.hh"
 #include "betterassert.hh"
 #include "FilePath.hh"
 #include <mutex>
