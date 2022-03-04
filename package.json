@@ -1,0 +1,10 @@
+{
+  "name": "couchbase-lite-c",
+  "scripts": {
+    "test:c": "node --experimental-wasm-eh build/test/CBL_C_Tests.js",
+    "test:js": "mocha -n experimental-wasm-eh --ui tdd test/js"
+  },
+  "devDependencies": {
+    "mocha": "^9.2.1"
+  }
+}

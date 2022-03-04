@@ -44,7 +44,41 @@ set(TEST_SRC
 )
 add_executable(CBL_C_Tests ${TEST_SRC} )
 
-target_link_libraries(CBL_C_Tests PRIVATE  cblite)
+if(EMSCRIPTEN)
+    target_link_libraries(CBL_C_Tests PRIVATE ${CBL_LIBRARIES_PRIVATE})
+
+    target_link_options(
+        CBL_C_Tests PRIVATE
+        "-pthread"
+        "-fwasm-exceptions"
+        "-lembind"
+        "SHELL:-s EXIT_RUNTIME=1"
+        "SHELL:-s PROXY_TO_PTHREAD=1"
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s DEMANGLE_SUPPORT=1"
+        "SHELL:-s WASM_BIGINT=1"
+    )
+
+    if(${CBL_JS_ENV} STREQUAL "Web")
+        target_link_options(
+            CBL_C_Tests PRIVATE
+            "SHELL:-s ENVIRONMENT=web,worker"
+            "SHELL:-s --embed-file ${CMAKE_CURRENT_BINARY_DIR}/test@test"
+            "-lwebsocket.js"
+        )
+    elseif(${CBL_JS_ENV} STREQUAL "NodeJS")
+        target_link_options(
+            CBL_C_Tests PRIVATE
+            "SHELL:-s ENVIRONMENT=node"
+            "-lnodefs.js"
+            "-lnoderawfs.js"
+        )
+    else()
+        message(FATAL_ERROR "Unknown JS environment ${CBL_JS_ENV}")
+    endif()
+else()
+    target_link_libraries(CBL_C_Tests PRIVATE  cblite)
+endif()
 
 if(MSVC)
     # For internal fleece dependencies:

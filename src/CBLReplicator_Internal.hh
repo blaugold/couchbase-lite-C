@@ -26,6 +26,9 @@
 #include "StringUtil.hh"
 #include "fleece/Fleece.hh"
 #include "fleece/Mutable.hh"
+#ifdef CBL_JS_ENV_WEB
+#include "WebWebSocket.hh"
+#endif
 #include <algorithm>
 #include <memory>
 #include <mutex>
@@ -69,7 +72,13 @@ public:
     {
         // One-time initialization of network transport:
         static once_flag once;
-        call_once(once, std::bind(&C4RegisterBuiltInWebSocket));
+        call_once(once, []() {
+#ifdef CBL_JS_ENV_WEB
+            registerWebWebSocket();
+#else
+            C4RegisterBuiltInWebSocket();
+#endif
+        });
 
         // Set up the LiteCore replicator parameters:
         _conf.validate();

@@ -9,6 +9,9 @@ endif()
 set(CMAKE_OSX_ARCHITECTURES x86_64 arm64)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
+# This is just to make mbed tls compile and should be removed eventually.
+set(MBEDTLS_FATAL_WARNINGS OFF CACHE BOOl "")
+
 if(DEFINED ENV{VERSION})
     message(VERBOSE "Using VERSION:$ENV{VERSION} from environment variable")
     set(CBL_VERSION_STRING $ENV{VERSION})
@@ -80,6 +83,15 @@ elseif(APPLE)
     include("cmake/platform_apple.cmake")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     include("cmake/platform_linux_desktop.cmake")
+elseif(EMSCRIPTEN)
+    set(CBL_JS_ENV "NodeJS" CACHE STRING "The JS environment for which to build (Web | NodeJS).")
+
+    # Emscripten does not actually support shared libraries and instead
+    # just builds a static library for compatibility with existing
+    # build setups. We just set this property to suppress a CMake warning.
+    set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
+
+    include("cmake/platform_emscripten.cmake")
 else()
     message(FATAL_ERROR "Unknown platform")
 endif()
@@ -178,8 +190,13 @@ set(CBL_LIBRARIES_PRIVATE
     ${WHOLE_LIBRARY_FLAG}
     cblite-static
     ${NO_WHOLE_LIBRARY_FLAG}
-    LiteCoreWebSocket
 )
+
+if(EMSCRIPTEN AND CBL_JS_ENV STREQUAL Web)
+    # The Web build uses a WebSocket implementation based on the browser WebSocker API.
+else()
+    list(APPEND CBL_LIBRARIES_PRIVATE LiteCoreWebSocket)
+endif()
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^armv[67]")
     # C/C++ atomic operations on ARM6/7 emit calls to functions in libatomic

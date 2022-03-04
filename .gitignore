@@ -26,3 +26,6 @@ build_apple_out
 
 # Others
 .DS_Store
+
+# JavaScript
+node_modules/
